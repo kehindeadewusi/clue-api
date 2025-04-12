@@ -11,7 +11,7 @@ products = [
 regions = ["North", "South", "East", "West"]
 years = [2025, 2026]
 
-with open('sales_data.csv', 'w', newline='') as csvfile:
+with open('sales_data_medium.csv', 'w', newline='') as csvfile:
     fieldnames = [
         "product_id", 
         "product_name", 

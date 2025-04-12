@@ -41,11 +41,11 @@ jobs:
       - name: Install app
         run: pip install .
       - name: Extract test file
-        run: tar -xf data/sales_data_large.tgz -C data/
+        run: tar -xf data/sales_data_medium.tgz -C data/
       - name: Create schema
         # working-directory: ./data/optimised/
         run: clue create-schema --source data/optimised/sales_schema.sql
       - name: Import Data
-        run: clue import-data --csv_path data/sales_data_large.csv -t sales_report
+        run: clue import-data --csv_path data/sales_data_medium.csv -t sales_report
       # - name: Run tests
       #   run: pytest
