@@ -45,6 +45,8 @@ jobs:
       - name: Create schema
         # working-directory: ./data/optimised/
         run: clue create-schema --source data/optimised/sales_schema.sql
+      - name: Create partitions
+        run: clue create-monthly-partitions -t sales_report -s 2025 -e 2026
       - name: Import Data
         run: clue import-data --csv_path data/sales_data_medium.csv -t sales_report
       # - name: Run tests
