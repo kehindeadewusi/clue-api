@@ -1,0 +1,51 @@
+name: test
+on: push
+
+env:
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+
+jobs:
+  run:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # container: node:20-bookworm-slim
+
+    services:
+      # Label used to access the service container
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    env:
+      CLUE_DB_HOST: localhost
+      CLUE_DB_USER: postgres
+      CLUE_DB_PWD: postgres
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.x"
+      - name: Install app
+        run: pip install .
+      - name: Extract test file
+        run: tar -xf data/sales_data_large.tgz -C data/
+      - name: Create schema
+        # working-directory: ./data/optimised/
+        run: clue create-schema --source data/optimised/sales_schema.sql
+      - name: Import Data
+        run: clue import-data --csv_path data/sales_data_large.csv -t sales_report
+      # - name: Run tests
+      #   run: pytest

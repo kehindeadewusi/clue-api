@@ -1,0 +1,220 @@
+openapi: 3.0.1
+info:
+  title: Clue Analytical Reports API
+  version: v1
+  description: API to retrieve various sales reports, including monthly summaries, breakdowns, and top-performing products.
+
+servers:
+  - url: http://127.0.0.1:5000
+    description: Local testing
+
+paths:
+  /reports/monthly-sales-summary:
+    get:
+      summary: Get Monthly Sales Summary
+      description: Retrieves a summary of monthly sales, optionally filtered by date range.
+      parameters:
+        - in: query
+          name: start_date
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Start date in format YYYY-MM-DD
+        - in: query
+          name: end_date
+          required: false
+          schema:
+            type: string
+            format: date
+          description: End date in format YYYY-MM-DD
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessMonthlySummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reports/monthly-sales-breakdown:
+    get:
+      summary: Get Monthly Sales Breakdown
+      description: Retrieves a detailed breakdown of monthly sales, filtered by product, region, and date range.
+      parameters:
+        - in: query
+          name: start_date
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Report start date, YYYY-MM-DD
+        - in: query
+          name: end_date
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Report end date, YYYY-MM-DD
+        - in: query
+          name: product
+          required: false
+          schema:
+            type: string
+          description: The product name.
+          example: "WidgetA"
+        - in: query
+          name: region
+          required: false
+          schema:
+            type: string
+          example: "North"
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessMonthlyBreakdown'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /reports/top-5-by-revenue:
+    get:
+      summary: Get Top 5 Products by Revenue
+      description: Retrieves the top 5 products ranked by total revenue within a specified date range.
+      parameters:
+        - in: query
+          name: start_date
+          schema:
+            type: string
+            format: date
+          description: Report start date (YYYY-MM-DD).
+          required: true
+          example: "2024-01-01"
+        - in: query
+          name: end_date
+          schema:
+            type: string
+            format: date
+          description: Report end date (YYYY-MM-DD).
+          required: true
+          example: "2025-12-12"
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessTopProducts'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+
+components:
+  schemas:
+    MonthlySalesSummary:
+      type: object
+      properties:
+        month:
+          type: string
+          description: The year and month of the summary (YYYY-MM).
+          example: "2024-01"
+        revenue:
+          type: number
+          format: float
+          description: The total revenue, sum(sales amount)
+          example: 1250.50
+        quantity:
+          type: integer
+          description: The total quantity, sum(quantity)
+          example: 5
+
+    MonthlySalesBreakdown:
+      type: object
+      properties:
+        month:
+          type: string
+          description: Report month, (YYYY-MM).
+          example: "2024-01"
+        product_name:
+          type: string
+          example: "Widget A"
+        region:
+          type: string
+          example: North
+        revenue:
+          type: number
+          format: float
+          description: The total revenue.
+          example: 50.00
+        quantity:
+          type: number
+          format: integer
+          description: Quantity sold.
+          example: 25
+
+    TopProductByRevenue:
+      type: object
+      properties:
+        rank:
+          type: integer
+          description: The rank of the product based on revenue.
+          example: 3
+        product_id:
+          type: integer
+          description: The product id
+          example: 1001
+        product_name:
+          type: string
+          description: The name of the product.
+          example: "Product X"
+        revenue:
+          type: number
+          format: float
+          example: 15000.00
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message from the server.
+          example: "Invalid date format."
+
+  responses:
+    SuccessMonthlySummary:
+      description: Successful response with monthly sales summary.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/MonthlySalesSummary'
+
+    SuccessMonthlyBreakdown:
+      description: Successful response with monthly sales breakdown.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/MonthlySalesBreakdown'
+
+    SuccessTopProducts:
+      description: Successful response with the top 5 products by revenue.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/TopProductByRevenue'
+
+    BadRequest:
+      description: Invalid parameters provided.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
