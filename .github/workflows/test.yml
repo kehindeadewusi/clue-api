@@ -46,6 +46,8 @@ jobs:
           python-version: "3.13.x"
       - name: Install app
         run: pip install .
+      - name: Install Pytest
+        run: pip install pytest
       - name: Install Yoyo-migrations
         run: pip install yoyo-migrations
       - name: Run application migrations
