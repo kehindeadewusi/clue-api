@@ -60,35 +60,35 @@ Commands:
 
 ### Commands
 
-`create-schema` and `sales_report` commands are created for convenience. For a more likely flow, you can run the [migrations](migrations/) which provides a more natural way to track changes to the database.
+`create-schema` and `sales_report` commands are provided for convenience. Do run the [migrations](migrations/) which provides a more natural way to track changes to the database.
 
 ```sh
 pip install yoyo-migrations
 yoyo apply
 ```
 
-#### Commands: Import Data
+The migrations create a partitioned `sales_report` table. They also create a few months partitions as well as indexes on the partitions.
 
-`import-data` loads a CSV file into the sales report table. For a simple run, use the migration to create the sales_report table. The `create-schema` command does the same.
+### Importing Data
 
-For the simple loading...
-```sh
-clue import-data --csv_path tests/data/sales_data.csv -t sales_report
-```
-However this will fail if any invalid data is present in the CSV file. 
-A second option involves specifying a simple schema for validation. It creates a validation_logs table to store invalid records:
+The `import-data` command loads a CSV file into the sales report table. It supports validation via a simple `YAML` schema and logs errors to a `validation_logs` table by default: 
 
 ```sh 
 clue import-data --csv_path tests/data/sales_data_2.csv --schema_path tests/data/sales_data.yaml --table sales_report
 ```
-This completes even when there are error rows. The errors are stored in a validation logs table.
+
+A simpler usage is shown below, however the import will fail if any errors are found:
+```sh
+clue import-data --csv_path tests/data/sales_data.csv -t sales_report
+```
+
 
 ## Rest API
 
-This API is built with Flask. `waitress` WSGI server is included in the dependencies for a production-like run. After installation, you can start the API with this command:
+This API is built with Flask. The `waitress` WSGI server is included in the dependencies for a production-like run. After installation, you can start the API with this command:
 
 ```sh
-waitress-serve --host 127.0.0.1 --call clue_api:create_app
+waitress-serve --host 127.0.0.1 --call clue_oda:create_app
 ```
 This will start the API on port 8080:
 
@@ -117,3 +117,5 @@ An OpenAPI documentation for the API is provided in the [docs folder](docs/opena
 1. The optimised sales_report table in [migrations/sales_schema.sql](migrations/20250413_01_rjwHd.sql) is partitioned by sales_date. The [second migration](migrations/20250413_02_9sO9a.sql) creates some monthly partitions and indexes on these monthly partitions. Inserted records are put into different partitions based on the sales date. This optimises queries that are based on the `sales_date` because these queries target specific partitions. 
 1. Indexes are created for `product_name` and `region` per-partition. The per-partition indexes are smaller and more efficient because they target particular partitions of the table. 
 1. Loading operations are more performant on the individual partitions as rebuilding indexes are limited to particular partitions.        
+
+ciao!
