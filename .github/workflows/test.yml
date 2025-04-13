@@ -28,9 +28,10 @@ jobs:
           - 5432:5432
     
     env:
-      CLUE_DB_HOST: localhost
-      CLUE_DB_USER: postgres
-      CLUE_DB_PWD: postgres
+      CLUE_TEST_DB_HOST: localhost
+      CLUE_TEST_DB: postgres
+      CLUE_TEST_DB_USER: postgres
+      CLUE_TEST_DB_PWD: postgres
 
     steps:
       - uses: actions/checkout@v4
@@ -40,14 +41,13 @@ jobs:
           python-version: "3.13.x"
       - name: Install app
         run: pip install .
-      - name: Extract test file
-        run: tar -xf data/sales_data_medium.tgz -C data/
-      - name: Create schema
-        # working-directory: ./data/optimised/
-        run: clue create-schema --source data/optimised/sales_schema.sql
-      - name: Create partitions
-        run: clue create-monthly-partitions -t sales_report -s 2025 -e 2026
-      - name: Import Data
-        run: clue import-data --csv_path data/sales_data_medium.csv -t sales_report
-      # - name: Run tests
-      #   run: pytest
+      - name: Install Yoyo-migrations
+        run: pip install yoyo-migrations
+      - name: Run application migrations
+        run: yoyo apply
+      - name: Extract test input file
+        run: tar -xf tests/data/sales_data_medium.tgz -C tests/data/
+      - name: Import test data
+        run: clue import-data --csv_path tests/data/sales_data_medium.csv -t sales_report
+      - name: Run integration tests
+        run: pytest -m integration
