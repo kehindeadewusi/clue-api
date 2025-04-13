@@ -112,4 +112,4 @@ An OpenAPI documentation for the API is provided in the [docs folder](docs/opena
 1. The schema design for the sales_report data is denormalized; it avoid joins which make it more performant and keeps the integrity of historical transactions.
 1. The optimised sales_report table in [data/optimised/sales_schema.sql](data/optimised/sales_schema.sql) is partitioned by sales_data. A script is also provided to create monthly partitions on the table. Inserted records are put into different partitions based on the sales date. This optimises queries that are based on the `sales_date` because these queries target specific partitions. 
 1. Indexes are created for `product_name` and `region` per-partition. The per-partition indexes are smaller and more efficient because they target particular partitions of the table. 
-1. Loading operations are more performant on the individual partitions as rebuilding indexes are limited to a partition.
+1. Loading operations are more performant on the individual partitions as rebuilding indexes are limited to a partition.        

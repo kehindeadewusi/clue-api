@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from clue_api.db import get_db
+from clue_oda.api.db import get_db
 import psycopg2
 
 
@@ -34,6 +34,10 @@ def monthly_sales_summary():
         'start_date': request.args.get('start_date'), # Expected format: YYYY-MM-DD
         'end_date': request.args.get('end_date')
     }
+
+    ok, error = test_date_range(params)
+    if not ok:
+        return jsonify(error), 400
 
     try:
         cursor.execute(query_monthly_sales_summary, params)
@@ -82,6 +86,10 @@ def monthly_sales_breakdown():
         'end_date': request.args.get('end_date')
     }
 
+    ok, error = test_date_range(params)
+    if not ok:
+        return jsonify(error), 400
+
     try:
         cursor.execute(query_monthly_sales_breakdown, params)
         columns = [desc[0] for desc in cursor.description]
@@ -124,6 +132,10 @@ def top_5_by_revenue():
         'end_date': request.args.get('end_date')
     }
 
+    ok, error = test_date_range(params)
+    if not ok:
+        return jsonify(error), 400
+
     try:
         cursor.execute(query_top_5_by_revenue, params)
         columns = [desc[0] for desc in cursor.description]
@@ -135,3 +147,13 @@ def top_5_by_revenue():
     finally:
         cursor.close()
         conn.close()
+
+
+def test_date_range(params):
+    start = params.get("start_date")
+    end = params.get("end_date")
+
+    if (start and end) and start > end:
+        return False, {"error": "invalid date range"}
+    
+    return True, None

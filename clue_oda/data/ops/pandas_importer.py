@@ -1,14 +1,11 @@
 import pandas as pd
 from sqlalchemy import create_engine
 import io
-from clue_api.settings import DB_CONFIG
+from .db import get_conn_str
 
 
 def get_connection():
-    conn_str = 'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}'
-    conn_str = conn_str.format(**DB_CONFIG)
-
-    return create_engine(conn_str)
+    return create_engine(get_conn_str())
 
 def save_with_pandas(csv_path:str, schema:dict, table:str, error_log_table:str):
     df = pd.read_csv(csv_path)

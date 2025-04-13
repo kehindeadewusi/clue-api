@@ -1,31 +1,12 @@
-import os
-import tempfile
-
 import pytest
-from clue_api import create_app
-from clue_api.db import get_db, init_db
-
-with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
-    _data_sql = f.read().decode('utf8')
+from clue_oda.api import create_app
 
 
 @pytest.fixture
 def app():
-    db_fd, db_path = tempfile.mkstemp()
-
-    app = create_app({
-        'TESTING': True,
-        'DATABASE': db_path,
-    })
-
-    with app.app_context():
-        init_db()
-        get_db().executescript(_data_sql)
+    app = create_app(testing=True)
 
     yield app
-
-    os.close(db_fd)
-    os.unlink(db_path)
 
 
 @pytest.fixture

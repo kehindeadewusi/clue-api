@@ -1,5 +1,5 @@
 import psycopg2
-from clue_api.settings import DB_CONFIG
+from .db import get_db
 
 
 def load_csv(csv_path:str, table:str) -> None:
@@ -14,7 +14,7 @@ def load_csv(csv_path:str, table:str) -> None:
     conn = None
     
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = get_db()
         cur = conn.cursor()
 
         with open(csv_path, 'r') as f:

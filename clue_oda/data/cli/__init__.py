@@ -1,6 +1,6 @@
 import click
 
-from clue_api.db_setup import schema, importer, importer_2
+from clue_oda.data.ops import schema, importer, importer_2
 
 
 @click.command(short_help="Load data from a CSV file to a table")

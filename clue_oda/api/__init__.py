@@ -1,21 +1,22 @@
 import os
 
-from flask import Flask
-from clue_api.settings import SECRET_KEY
+from flask import Flask, jsonify
+from clue_oda.settings import SECRET_KEY
+from . import report_api
 
-def create_app(test_config=None):
+def create_app(testing=False):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=SECRET_KEY,
     )
 
-    if test_config is None:
+    if testing:
         # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
+        app.config.from_mapping({"DATABASE": "test"})
     else:
         # load the test config if passed in
-        app.config.from_mapping(test_config)
+        app.config.from_mapping({"DATABASE": "default"})
 
     # ensure the instance folder exists
     try:
@@ -26,12 +27,8 @@ def create_app(test_config=None):
     # Assert the API is up, or not
     @app.route('/')
     def hello():
-        return 'Hello, World!'
+        return jsonify({"message": "Hello."}), 200
     
-    # from . import db
-    # db.init_app(app)
-
-    from . import report_api
     app.register_blueprint(report_api.bp)
 
     return app

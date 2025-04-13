@@ -1,7 +1,8 @@
 import psycopg2
-from clue_api.settings import DB_CONFIG
+from .db import get_db
 
-def read_query_from_file(filepath):
+
+def _read_query_from_file(filepath):
     """Reads text from the specified file.
     
     Reads text from a specified part. This is used as a helper to read SQL 
@@ -17,11 +18,11 @@ def read_query_from_file(filepath):
 
 def create_sales_table(script_path:str):
     """Creates sales table in PostgreSQL."""
-    query = read_query_from_file(script_path)
+    query = _read_query_from_file(script_path)
 
     conn = None
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = get_db()
         cur = conn.cursor()
 
         cur.execute(query)
@@ -49,7 +50,7 @@ def create_monthly_partitions(table: str, start_year:int, end_year:int) -> None:
     
     conn = None
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = get_db()
         cur = conn.cursor()
 
         for year in range(start_year, end_year + 1):

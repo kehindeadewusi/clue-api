@@ -2,8 +2,8 @@ import psycopg2
 import csv
 import yaml
 
-from clue_api.settings import DB_CONFIG
 from . import pandas_importer as pi
+from .db import get_db
 
 def get_schema(schema_path: str):
     """Reads a YAML file and convert to a dictionary.
@@ -44,7 +44,7 @@ def load_csv(csv_path:str, schema_path:str, table: str, error_log_table:str):
     column_types = get_schema(schema_path)
 
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = get_db()
         cur = conn.cursor()
 
         with open(csv_path, 'r') as f:
