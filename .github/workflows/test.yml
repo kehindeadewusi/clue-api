@@ -33,6 +33,11 @@ jobs:
       CLUE_TEST_DB_USER: postgres
       CLUE_TEST_DB_PWD: postgres
 
+      CLUE_DB_HOST: localhost
+      CLUE_DB: postgres
+      CLUE_DB_USER: postgres
+      CLUE_DB_PWD: postgres
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.13
