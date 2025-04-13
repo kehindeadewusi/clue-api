@@ -57,4 +57,4 @@ jobs:
       - name: Import test data
         run: clue import-data --csv_path tests/data/sales_data_medium.csv -t sales_report
       - name: Run integration tests
-        run: pytest -m integration
+        run: pytest
